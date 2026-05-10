@@ -1,0 +1,38 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: ['main']
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Authentication
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+      
+      - name: Build Docker image
+        run: docker build -t asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo:${{ github.sha }} .
+      
+      - name: Push Docker image
+        run: docker push asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo:${{ github.sha }}
+      
+      - name: Deploy to Cloud Run
+        run: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: flask-arcadia-app
+          region: asia-northeast1
+          image: asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo:${{ github.sha }}
