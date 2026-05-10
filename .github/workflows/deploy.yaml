@@ -25,14 +25,14 @@ jobs:
         run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
       - name: Build Docker image
-        run: docker build -t asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo:${{ github.sha }} ./myproject/
+        run: docker build -t asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo/flask-arcadia-app:${{ github.sha }} ./myproject/
 
       - name: Push Docker image
-        run: docker push asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo:${{ github.sha }}
+        run: docker push asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo/flask-arcadia-app:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: flask-arcadia-app
           region: asia-northeast1
-          image: asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo:${{ github.sha }}
+          image: asia-northeast1-docker.pkg.dev/carbon-clover-491814-j7/arcadia-repo/flask-arcadia-app:${{ github.sha }}
